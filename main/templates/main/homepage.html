@@ -1,0 +1,97 @@
+{% extends 'main/base.html' %}
+
+{% block title %}BlogDCR - Dartmouth College Radio{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Featured Section -->
+    {% if featured_article %}
+    <section class="content-section">
+        <div class="featured-interview">
+            <div class="featured-label text-green" style="font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">
+                FEATURED
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 400px; gap: 3rem; align-items: center;">
+                <div>
+                    <h1 style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem;">
+                        {{ featured_article.title }}
+                    </h1>
+                    
+                    <p style="font-size: 1.125rem; color: var(--gray-dark); margin-bottom: 2rem; line-height: 1.6;">
+                        {{ featured_article.description }}
+                    </p>
+                    
+                    <a href="#" class="btn-primary" style="font-size: 1rem;">Read Full Interview</a>
+                </div>
+                
+                <div style="background-color: var(--gray-light); height: 300px; border-radius: var(--border-radius-card);"></div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    
+    <!-- Latest Sessions Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Latest Sessions</h2>
+            <a href="{% url 'main:sessions' %}" class="section-link">View All →</a>
+        </div>
+        
+        <div class="grid-3">
+            {% for session in latest_sessions %}
+            <div class="session-card">
+                <div style="background-color: var(--gray-light); height: 200px; border-radius: var(--border-radius-card); margin-bottom: 1rem;"></div>
+                
+                <div class="status-badge status-live" style="margin-bottom: 0.75rem;">
+                    {{ session.session_type|upper }}
+                </div>
+                
+                <h3 style="margin-bottom: 0.5rem;">{{ session.title }}</h3>
+                
+                <p style="color: var(--gray-dark); font-size: 0.875rem; margin-bottom: 1rem;">
+                    {{ session.description|truncatewords:20 }}
+                </p>
+                
+                {% if session.session_type == 'live' %}
+                <a href="#" class="btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Watch Session</a>
+                {% else %}
+                <a href="#" class="btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Listen Now</a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-gray">No sessions available yet.</p>
+            {% endfor %}
+        </div>
+    </section>
+    
+    <!-- Fresh Playlists Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Fresh Playlists</h2>
+            <a href="{% url 'main:playlists' %}" class="section-link">Browse All →</a>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            {% for playlist in fresh_playlists %}
+            {% include 'main/playlist_embed.html' with playlist=playlist %}
+            {% empty %}
+            <p class="text-gray">No playlists available yet.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .featured-interview > div {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+    
+    .featured-interview h1 {
+        font-size: 2.5rem !important;
+    }
+}
+</style>
+{% endblock %}

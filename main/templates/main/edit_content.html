@@ -1,0 +1,333 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Edit {{ content_type|title }} - BlogDCR{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Edit {{ content_type|title }}</h1>
+            <a href="{% url 'main:published' %}" style="color: var(--gray-dark); text-decoration: none;">← Back to Published Content</a>
+        </div>
+        
+        <div class="card">
+            <form id="editForm" method="post">
+                {% csrf_token %}
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="title" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Title</label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        value="{{ content.title }}"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                        required
+                    >
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="description" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Description</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        rows="3"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                            resize: vertical;
+                        "
+                        required
+                    >{{ content.description }}</textarea>
+                </div>
+                
+                {% if content_type == 'article' %}
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="content" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Content</label>
+                    <textarea 
+                        id="content" 
+                        name="content" 
+                        class="tinymce-editor"
+                        required
+                    >{{ content.content|safe }}</textarea>
+                </div>
+                {% endif %}
+                
+                {% if content_type == 'playlist' %}
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="playlist_url" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Playlist URL</label>
+                    <input 
+                        type="url" 
+                        id="playlist_url" 
+                        name="playlist_url" 
+                        value="{{ content.playlist_url }}"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                        required
+                    >
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="platform" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Platform</label>
+                    <select 
+                        id="platform" 
+                        name="platform"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                        required
+                    >
+                        <option value="spotify" {% if content.platform == 'spotify' %}selected{% endif %}>Spotify</option>
+                        <option value="apple_music" {% if content.platform == 'apple_music' %}selected{% endif %}>Apple Music</option>
+                        <option value="youtube" {% if content.platform == 'youtube' %}selected{% endif %}>YouTube</option>
+                        <option value="soundcloud" {% if content.platform == 'soundcloud' %}selected{% endif %}>SoundCloud</option>
+                    </select>
+                </div>
+                {% endif %}
+                
+                {% if content_type == 'session' %}
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="session_type" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Session Type</label>
+                    <select 
+                        id="session_type" 
+                        name="session_type"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                        required
+                    >
+                        <option value="live" {% if content.session_type == 'live' %}selected{% endif %}>Live Performance</option>
+                        <option value="dj_mix" {% if content.session_type == 'dj_mix' %}selected{% endif %}>DJ Mix</option>
+                        <option value="interview" {% if content.session_type == 'interview' %}selected{% endif %}>Interview</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="video_url" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Video URL</label>
+                    <input 
+                        type="url" 
+                        id="video_url" 
+                        name="video_url" 
+                        value="{{ content.video_url }}"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                    >
+                </div>
+                
+                <!-- Rich text content field for sessions -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="content" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Session Details</label>
+                    <textarea 
+                        id="session-content" 
+                        name="content" 
+                        class="tinymce-editor"
+                    >{{ content.content|safe }}</textarea>
+                </div>
+                {% endif %}
+                
+                <!-- Custom Publication Date for archival imports and backdating -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="custom_publication_date" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Custom Publication Date</label>
+                    <input 
+                        type="date" 
+                        id="custom_publication_date" 
+                        name="custom_publication_date" 
+                        value="{{ content.custom_publication_date|date:'Y-m-d' }}"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                    >
+                    <small style="color: var(--gray-dark); font-size: 0.875rem;">Optional: Set a custom date for archival content or backdating. Leave blank to use creation date.</small>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="status" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Status</label>
+                    <select 
+                        id="status" 
+                        name="status"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                        required
+                    >
+                        <option value="published" {% if content.status == 'published' %}selected{% endif %}>Published</option>
+                        <option value="private" {% if content.status == 'private' %}selected{% endif %}>Private</option>
+                        <option value="archived" {% if content.status == 'archived' %}selected{% endif %}>Archived</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <a 
+                        href="{% url 'main:published' %}"
+                        style="
+                            background-color: var(--white);
+                            color: var(--gray-dark);
+                            border: 1px solid var(--gray-medium);
+                            padding: 0.75rem 1.5rem;
+                            border-radius: var(--border-radius-button);
+                            text-decoration: none;
+                            font-size: 1rem;
+                        "
+                    >Cancel</a>
+                    <button 
+                        type="submit"
+                        style="
+                            background-color: var(--primary-green);
+                            color: var(--white);
+                            border: none;
+                            padding: 0.75rem 1.5rem;
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                            cursor: pointer;
+                        "
+                    >Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+
+<script>
+// Initialize TinyMCE Rich Text Editor
+tinymce.init({
+    selector: '.tinymce-editor',
+    height: 400,
+    plugins: [
+        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+    ],
+    toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link image media | code preview fullscreen | help',
+    content_style: `
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Crimson Text', serif;
+            color: #000;
+        }
+    `,
+    images_upload_url: '/tinymce/upload-image/',
+    automatic_uploads: true,
+    file_picker_types: 'image',
+    images_upload_handler: function (blobInfo, success, failure, progress) {
+        var xhr, formData;
+        xhr = new XMLHttpRequest();
+        xhr.withCredentials = false;
+        xhr.open('POST', '/tinymce/upload-image/');
+        
+        xhr.setRequestHeader('X-CSRFToken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        
+        xhr.upload.onprogress = function (e) {
+            progress(e.loaded / e.total * 100);
+        };
+        
+        xhr.onload = function() {
+            var json;
+            if (xhr.status === 403) {
+                failure('HTTP Error: ' + xhr.status, { remove: true });
+                return;
+            }
+            if (xhr.status < 200 || xhr.status >= 300) {
+                failure('HTTP Error: ' + xhr.status);
+                return;
+            }
+            json = JSON.parse(xhr.responseText);
+            if (!json || typeof json.location != 'string') {
+                failure('Invalid JSON: ' + xhr.responseText);
+                return;
+            }
+            success(json.location);
+        };
+        
+        xhr.onerror = function () {
+            failure('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+        };
+        
+        formData = new FormData();
+        formData.append('file', blobInfo.blob(), blobInfo.filename());
+        xhr.send(formData);
+    },
+    setup: function (editor) {
+        editor.on('change', function () {
+            editor.save();
+        });
+    }
+});
+
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Save TinyMCE content to textarea before submitting
+    if (typeof tinymce !== 'undefined') {
+        tinymce.triggerSave();
+    }
+    
+    const formData = new FormData(this);
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Content updated successfully!');
+            window.location.href = '{% url "main:published" %}';
+        } else {
+            alert('Error updating content: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        alert('Error updating content: ' + error.message);
+    });
+});
+</script>
+{% endblock %}

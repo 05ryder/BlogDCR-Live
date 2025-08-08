@@ -1,0 +1,44 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Sessions - BlogDCR{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section">
+        <h1 class="text-center mb-2">Sessions</h1>
+        
+        <div class="grid-3">
+            {% for session in sessions %}
+            <div class="session-card">
+                <div style="background-color: var(--gray-light); height: 250px; border-radius: var(--border-radius-card); margin-bottom: 1rem;"></div>
+                
+                <div class="status-badge status-live" style="margin-bottom: 0.75rem;">
+                    {{ session.session_type|upper }}
+                </div>
+                
+                <h3 style="margin-bottom: 0.75rem;">{{ session.title }}</h3>
+                
+                <p style="color: var(--gray-dark); margin-bottom: 1rem;">
+                    {{ session.description }}
+                </p>
+                
+                <div style="font-size: 0.875rem; color: var(--gray-dark); margin-bottom: 1rem;">
+                    {{ session.get_display_date|date:"F j, Y" }}
+                    {% if session.location %} • Location: {{ session.location }}{% endif %}
+                </div>
+                
+                {% if session.session_type == 'live' %}
+                <a href="#" class="btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Watch Session</a>
+                {% else %}
+                <a href="#" class="btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Listen Now</a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="text-center" style="grid-column: 1 / -1;">
+                <p class="text-gray">No sessions available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

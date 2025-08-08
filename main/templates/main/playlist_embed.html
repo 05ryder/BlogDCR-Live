@@ -1,0 +1,125 @@
+<!-- Rich Playlist Embed Component -->
+<div class="playlist-embed" style="
+    border: 1px solid var(--gray-medium);
+    border-radius: var(--border-radius-card);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    background: var(--white);
+">
+    <!-- Playlist Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+        <div>
+            <h3 style="margin: 0 0 0.5rem 0; color: var(--black);">{{ playlist.title }}</h3>
+            {% if playlist.description %}
+                <p style="margin: 0.5rem 0 0 0; color: var(--gray-dark); font-size: 0.875rem;">
+                    {{ playlist.description|truncatewords:30 }}
+                </p>
+            {% endif %}
+        </div>
+        
+        <!-- Platform Badge -->
+        <div style="
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            {% if playlist.platform == 'spotify' %}
+                background-color: #1DB954;
+                color: white;
+            {% elif playlist.platform == 'soundcloud' %}
+                background-color: #ff5500;
+                color: white;
+            {% elif playlist.platform == 'youtube' %}
+                background-color: #FF0000;
+                color: white;
+            {% else %}
+                background-color: var(--gray-medium);
+                color: var(--gray-dark);
+            {% endif %}
+        ">
+            {{ playlist.platform }}
+        </div>
+    </div>
+    
+    <!-- Embedded Player -->
+    {% if playlist.get_embed_html %}
+        <div class="playlist-player" style="margin: 1rem 0;">
+            {{ playlist.get_embed_html|safe }}
+        </div>
+    {% else %}
+        <!-- Fallback for playlists without embeds -->
+        <div style="
+            background: var(--gray-light);
+            border-radius: var(--border-radius-button);
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+        ">
+            <div style="margin-bottom: 1rem;">
+                {% if playlist.platform == 'spotify' %}
+                    <div style="font-size: 2rem;">🎵</div>
+                {% elif playlist.platform == 'soundcloud' %}
+                    <div style="font-size: 2rem;">🎧</div>
+                {% else %}
+                    <div style="font-size: 2rem;">🎶</div>
+                {% endif %}
+            </div>
+            <p style="color: var(--gray-dark); margin-bottom: 1rem;">
+                Listen on {{ playlist.platform|title }}
+            </p>
+            <a 
+                href="{{ playlist.playlist_url }}" 
+                target="_blank"
+                style="
+                    display: inline-block;
+                    background-color: var(--primary-green);
+                    color: var(--white);
+                    padding: 0.75rem 1.5rem;
+                    border-radius: var(--border-radius-button);
+                    text-decoration: none;
+                    font-weight: 600;
+                "
+            >
+                Open {{ playlist.platform|title }}
+            </a>
+        </div>
+    {% endif %}
+    
+    <!-- Playlist Actions (if user is editor and not on homepage) -->
+    {% if user.is_superuser and not is_homepage %}
+        <div style="
+            border-top: 1px solid var(--gray-medium);
+            padding-top: 1rem;
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        ">
+            <button 
+                onclick="toggleContentVisibility('playlist', {{ playlist.id }})"
+                style="
+                    background-color: var(--white);
+                    color: var(--gray-dark);
+                    border: 1px solid var(--gray-medium);
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--border-radius-button);
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                "
+            >{% if playlist.status == 'published' %}Hide{% else %}Show{% endif %}</button>
+            <button 
+                onclick="editContent('playlist', {{ playlist.id }})"
+                style="
+                    background-color: var(--primary-green);
+                    color: var(--white);
+                    border: none;
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--border-radius-button);
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                "
+            >Edit</button>
+        </div>
+    {% endif %}
+</div>

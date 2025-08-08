@@ -1,0 +1,43 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Features - BlogDCR{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section">
+        <h1 class="text-center mb-2">Features</h1>
+        
+        <div class="grid-3">
+            {% for article in articles %}
+            <div class="card">
+                <div style="background-color: var(--gray-light); height: 200px; border-radius: var(--border-radius-card); margin-bottom: 1rem;"></div>
+                
+                <div class="status-badge" style="
+                    background-color: var(--primary-green);
+                    color: var(--white);
+                    margin-bottom: 0.75rem;
+                ">
+                    {{ article.article_type|upper }}
+                </div>
+                
+                <h3 style="margin-bottom: 0.75rem;">{{ article.title }}</h3>
+                
+                <p style="color: var(--gray-dark); margin-bottom: 1rem;">
+                    {{ article.description|truncatewords:25 }}
+                </p>
+                
+                <div style="font-size: 0.875rem; color: var(--gray-dark);">
+                    by {{ article.author_name }} • {{ article.created_at|date:"M d, Y" }}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center" style="grid-column: 1 / -1;">
+                <h3>Cover Story</h3>
+                <h2>The Underground Scene: Hanover's Best Kept Secret</h2>
+                <p class="text-gray">How basement shows are reshaping the Upper Valley music scene</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

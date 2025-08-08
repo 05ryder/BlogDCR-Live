@@ -1,0 +1,908 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Edit Homepage - BlogDCR{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div>
+                <h1>Edit Homepage</h1>
+                <p style="color: var(--gray-dark);">Configure homepage sections and featured content.</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button 
+                    onclick="window.open('/homepage/', '_blank')"
+                    style="
+                        background-color: var(--white);
+                        color: var(--gray-dark);
+                        border: 1px solid var(--gray-medium);
+                        padding: 0.75rem 1.5rem;
+                        border-radius: var(--border-radius-button);
+                        font-weight: 600;
+                        cursor: pointer;
+                    "
+                >
+                    Preview Homepage
+                </button>
+                <button 
+                    onclick="saveConfiguration()"
+                    class="btn-primary"
+                    style="background-color: var(--primary-green);"
+                    id="saveBtn"
+                >
+                    Save Configuration
+                </button>
+            </div>
+        </div>
+        
+        <!-- Configuration Panel -->
+        <div style="background-color: var(--gray-light); border-radius: var(--border-radius-card); padding: 1.5rem; margin-bottom: 2rem;">
+            <h2 style="margin-bottom: 1rem; color: var(--primary-green);">Homepage Configuration</h2>
+            
+            <form id="configForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_config">
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">Section Visibility</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" name="show_featured_section" {% if config.show_featured_section %}checked{% endif %}>
+                            <span>Show Featured Content Section</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" name="show_sessions_section" {% if config.show_sessions_section %}checked{% endif %}>
+                            <span>Show Latest Sessions Section (auto: 3 most recent)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" name="show_playlists_section" {% if config.show_playlists_section %}checked{% endif %}>
+                            <span>Show Fresh Playlists Section (auto: 3 most recent)</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">Custom Hero Content</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Hero Title:</label>
+                            <input type="text" name="hero_title" value="{{ config.hero_title }}" placeholder="Custom homepage title" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-medium); border-radius: 4px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Hero Subtitle:</label>
+                            <textarea name="hero_subtitle" placeholder="Custom homepage subtitle" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-medium); border-radius: 4px; height: 80px; resize: vertical;">{{ config.hero_subtitle }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Editable Homepage Sections -->
+        <div style="border: 2px solid var(--primary-green); border-radius: var(--border-radius-card); padding: 1rem;">
+            
+            <!-- Featured Content Editor Section -->
+            <div style="border: 1px solid var(--gray-medium); border-radius: var(--border-radius-card); padding: 1.5rem; margin-bottom: 2rem; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <h3>Featured Content Editor</h3>
+                        <span class="status-badge status-live">FEATURED</span>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button style="
+                            background-color: var(--white);
+                            color: var(--gray-dark);
+                            border: 1px solid var(--gray-medium);
+                            padding: 0.5rem 1rem;
+                            border-radius: var(--border-radius-button);
+                            font-size: 0.875rem;
+                            cursor: pointer;
+                        " onclick="openContentLibrary()">Browse Library</button>
+                        <button style="
+                            background-color: var(--primary-green);
+                            color: var(--white);
+                            border: none;
+                            padding: 0.5rem 1rem;
+                            border-radius: var(--border-radius-button);
+                            font-size: 0.875rem;
+                            cursor: pointer;
+                        " onclick="saveFeaturedContent()">Save Featured Content</button>
+                    </div>
+                </div>
+                
+                <!-- Featured Content Form -->
+                <form id="featuredContentForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_featured_content">
+                    <input type="hidden" name="featured_article_id" value="{{ config.featured_article.id|default:'' }}" id="selectedArticleId">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem; margin-bottom: 1.5rem;">
+                        <!-- Content Details -->
+                        <div>
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Featured Title</label>
+                                <input type="text" name="featured_title" value="{% if config.featured_title %}{{ config.featured_title }}{% elif config.featured_article %}{{ config.featured_article.title }}{% endif %}" 
+                                       placeholder="Enter custom title or use article title"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-medium); border-radius: var(--border-radius-button);">
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Featured Description</label>
+                                <textarea name="featured_description" rows="3" 
+                                          placeholder="Enter custom description or use article description"
+                                          style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-medium); border-radius: var(--border-radius-button); resize: vertical;">{% if config.featured_description %}{{ config.featured_description }}{% elif config.featured_article %}{{ config.featured_article.description }}{% endif %}</textarea>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Button Text</label>
+                                    <select name="featured_button_text" 
+                                            style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-medium); border-radius: var(--border-radius-button);">
+                                        <option value="Read Full Interview" {% if config.featured_button_text == 'Read Full Interview' %}selected{% endif %}>Read Full Interview</option>
+                                        <option value="Read Interview" {% if config.featured_button_text == 'Read Interview' %}selected{% endif %}>Read Interview</option>
+                                        <option value="Read Article" {% if config.featured_button_text == 'Read Article' %}selected{% endif %}>Read Article</option>
+                                        <option value="Watch Here" {% if config.featured_button_text == 'Watch Here' %}selected{% endif %}>Watch Here</option>
+                                        <option value="Listen Here" {% if config.featured_button_text == 'Listen Here' %}selected{% endif %}>Listen Here</option>
+                                        <option value="View Session" {% if config.featured_button_text == 'View Session' %}selected{% endif %}>View Session</option>
+                                        <option value="Explore" {% if config.featured_button_text == 'Explore' %}selected{% endif %}>Explore</option>
+                                        <option value="Learn More" {% if config.featured_button_text == 'Learn More' %}selected{% endif %}>Learn More</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Content Type</label>
+                                    <input type="text" value="{{ config.featured_article.content_type|default:'No content selected' }}" readonly
+                                           style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-medium); border-radius: var(--border-radius-button); background-color: var(--gray-light);">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Image Upload & Preview -->
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Featured Image</label>
+                            <div style="border: 2px dashed var(--gray-medium); border-radius: var(--border-radius-card); padding: 1rem; text-align: center; background-color: var(--gray-light);">
+                                <div id="imagePreview" style="margin-bottom: 1rem;">
+                                    {% if config.featured_image %}
+                                        <img src="{{ config.featured_image.url }}" alt="Featured image" 
+                                             style="max-width: 100%; height: 150px; object-fit: cover; border-radius: var(--border-radius-button);">
+                                    {% else %}
+                                        <div style="height: 150px; background-color: var(--gray-medium); border-radius: var(--border-radius-button); display: flex; align-items: center; justify-content: center; color: var(--gray-dark);">
+                                            No Image
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <input type="file" name="featured_image" accept="image/*" id="imageUpload" 
+                                       style="display: none;" onchange="previewImage(this)">
+                                <button type="button" onclick="document.getElementById('imageUpload').click()"
+                                        style="background-color: var(--white); color: var(--gray-dark); border: 1px solid var(--gray-medium); padding: 0.5rem 1rem; border-radius: var(--border-radius-button); cursor: pointer; font-size: 0.875rem;">
+                                    Choose Image
+                                </button>
+                                {% if config.featured_image %}
+                                <button type="button" onclick="removeImage()"
+                                        style="background-color: var(--status-private); color: var(--white); border: none; padding: 0.5rem 1rem; border-radius: var(--border-radius-button); cursor: pointer; font-size: 0.875rem; margin-left: 0.5rem;">
+                                    Remove
+                                </button>
+                                {% endif %}
+                                <p style="font-size: 0.75rem; color: var(--gray-dark); margin-top: 0.5rem;">Images will be auto-resized to fit the layout</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Article Info -->
+                    <div id="selectedArticleInfo" style="background-color: var(--gray-light); border-radius: var(--border-radius-button); padding: 1rem; margin-bottom: 1rem;">
+                        {% if config.featured_article %}
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin: 0 0 0.25rem 0;">Selected: {{ config.featured_article.title }}</h4>
+                                    <p style="margin: 0; color: var(--gray-dark); font-size: 0.875rem;">{{ config.featured_article.content_type|title }} • Published {{ config.featured_article.published_at|date:"M d, Y" }}</p>
+                                </div>
+                                <a href="#" onclick="viewFullContent('{{ config.featured_article.id }}')" 
+                                   style="color: var(--primary-green); text-decoration: none; font-size: 0.875rem;">View Full Content →</a>
+                            </div>
+                        {% else %}
+                            <div style="text-align: center; color: var(--gray-dark);">
+                                <p style="margin: 0;">No content selected. Click "Browse Library" to choose featured content.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </form>
+                
+                {% if config.featured_article %}
+                <div style="display: grid; grid-template-columns: 1fr 200px; gap: 2rem; align-items: center;">
+                    <div>
+                        <h3 style="margin-bottom: 0.75rem;">{{ config.featured_article.title }}</h3>
+                        <p style="color: var(--gray-dark); margin-bottom: 1rem;">
+                            {{ config.featured_article.description|truncatewords:20 }}
+                        </p>
+                        <div style="font-size: 0.875rem; color: var(--gray-dark);">
+                            Type: {{ config.featured_article.article_type|title }} • Author: {{ config.featured_article.author_name }} • Views: {{ config.featured_article.views }}
+                        </div>
+                    </div>
+                    <div style="background-color: var(--gray-light); height: 120px; border-radius: var(--border-radius-card);"></div>
+                </div>
+                
+                <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                    <button style="
+                        background-color: var(--white);
+                        color: var(--gray-dark);
+                        border: 1px solid var(--gray-medium);
+                        padding: 0.5rem 1rem;
+                        border-radius: var(--border-radius-button);
+                        font-size: 0.875rem;
+                        cursor: pointer;
+                    ">Replace</button>
+                    <button style="
+                        background-color: var(--primary-green);
+                        color: var(--white);
+                        border: none;
+                        padding: 0.5rem 1rem;
+                        border-radius: var(--border-radius-button);
+                        font-size: 0.875rem;
+                        cursor: pointer;
+                    ">Edit</button>
+                </div>
+                {% endif %}
+                
+                <!-- Drag handle -->
+                <div style="
+                    position: absolute;
+                    left: -10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background-color: var(--gray-medium);
+                    width: 20px;
+                    height: 40px;
+                    border-radius: 4px;
+                    cursor: move;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--gray-dark);
+                ">⋮⋮</div>
+            </div>
+            
+            <!-- Latest Sessions Section -->
+            <div style="border: 1px solid var(--gray-medium); border-radius: var(--border-radius-card); padding: 1.5rem; margin-bottom: 2rem; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Latest Sessions</h2>
+                    <span class="status-badge status-live">LIVE</span>
+                </div>
+                
+                <p style="color: var(--gray-dark); margin-bottom: 1rem;">Showing 3 items</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for session in latest_sessions %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: var(--gray-light); border-radius: var(--border-radius-button);">
+                        <div>
+                            <h4>{{ session.title }}</h4>
+                            <p style="color: var(--gray-dark); font-size: 0.875rem;">
+                                {{ session.session_type|title }} • Published {{ session.created_at|timesince }} ago • {{ session.views }} views
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="
+                                background-color: var(--white);
+                                color: var(--gray-dark);
+                                border: 1px solid var(--gray-medium);
+                                padding: 0.25rem 0.75rem;
+                                border-radius: var(--border-radius-button);
+                                font-size: 0.75rem;
+                                cursor: pointer;
+                            ">Hide</button>
+                            <button style="
+                                background-color: var(--primary-green);
+                                color: var(--white);
+                                border: none;
+                                padding: 0.25rem 0.75rem;
+                                border-radius: var(--border-radius-button);
+                                font-size: 0.75rem;
+                                cursor: pointer;
+                            ">Edit</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <button style="
+                    background-color: var(--white);
+                    color: var(--gray-dark);
+                    border: 1px dashed var(--gray-medium);
+                    padding: 0.75rem;
+                    border-radius: var(--border-radius-button);
+                    width: 100%;
+                    margin-top: 1rem;
+                    cursor: pointer;
+                ">+ Add Another Session</button>
+                
+                <!-- Drag handle -->
+                <div style="
+                    position: absolute;
+                    left: -10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background-color: var(--gray-medium);
+                    width: 20px;
+                    height: 40px;
+                    border-radius: 4px;
+                    cursor: move;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--gray-dark);
+                ">⋮⋮</div>
+            </div>
+            
+            <!-- Fresh Playlists Section -->
+            <div style="border: 1px solid var(--gray-medium); border-radius: var(--border-radius-card); padding: 1.5rem; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Fresh Playlists</h2>
+                    <span class="status-badge status-live">LIVE</span>
+                </div>
+                
+                <p style="color: var(--gray-dark); margin-bottom: 1rem;">Showing 4 items</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    {% for playlist in fresh_playlists %}
+                    <div style="text-align: center;">
+                        <div style="
+                            background-color: {{ playlist.cover_color|default:'#000' }}; 
+                            height: 100px; 
+                            border-radius: var(--border-radius-card); 
+                            margin-bottom: 0.5rem;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 1.5rem;
+                        ">♪</div>
+                        <h5 style="font-size: 0.875rem; margin-bottom: 0.25rem;">{{ playlist.title }}</h5>
+                        <p style="color: var(--gray-dark); font-size: 0.75rem;">by {{ playlist.author_name }}</p>
+                        <div style="display: flex; gap: 0.25rem; margin-top: 0.5rem; justify-content: center;">
+                            <button style="
+                                background-color: var(--white);
+                                color: var(--gray-dark);
+                                border: 1px solid var(--gray-medium);
+                                padding: 0.25rem 0.5rem;
+                                border-radius: var(--border-radius-button);
+                                font-size: 0.625rem;
+                                cursor: pointer;
+                            ">Hide</button>
+                            <button style="
+                                background-color: var(--primary-green);
+                                color: var(--white);
+                                border: none;
+                                padding: 0.25rem 0.5rem;
+                                border-radius: var(--border-radius-button);
+                                font-size: 0.625rem;
+                                cursor: pointer;
+                            ">Replace</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <button style="
+                    background-color: var(--white);
+                    color: var(--gray-dark);
+                    border: 1px dashed var(--gray-medium);
+                    padding: 0.75rem;
+                    border-radius: var(--border-radius-button);
+                    width: 100%;
+                    margin-top: 1rem;
+                    cursor: pointer;
+                ">+ Add More Playlists</button>
+                
+                <!-- Drag handle -->
+                <div style="
+                    position: absolute;
+                    left: -10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background-color: var(--gray-medium);
+                    width: 20px;
+                    height: 40px;
+                    border-radius: 4px;
+                    cursor: move;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--gray-dark);
+                ">⋮⋮</div>
+            </div>
+            
+        </div>
+        
+        <!-- Add New Section Button -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <button style="
+                background-color: var(--white);
+                color: var(--gray-dark);
+                border: 1px dashed var(--gray-medium);
+                padding: 1rem 2rem;
+                border-radius: var(--border-radius-button);
+                cursor: pointer;
+                font-size: 1rem;
+            ">+ Add New Homepage Section</button>
+        </div>
+        
+        <!-- Featured Article Selection Modal -->
+        <div id="featuredModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 2rem; border-radius: var(--border-radius-card); max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Select Featured Article</h2>
+                    <button onclick="closeFeaturedModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <input type="text" id="articleSearch" placeholder="Search articles..." style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-medium); border-radius: 4px;">
+                </div>
+                
+                <div id="articlesList" style="max-height: 300px; overflow-y: auto;">
+                    {% for article in available_articles %}
+                    <div class="article-option" data-id="{{ article.id }}" style="padding: 1rem; border: 1px solid var(--gray-medium); border-radius: 4px; margin-bottom: 0.5rem; cursor: pointer; transition: background-color 0.2s;" onclick="selectFeaturedArticle({{ article.id }}, '{{ article.title|escapejs|safe }}')">
+                        <h4 style="margin-bottom: 0.5rem;">{{ article.title }}</h4>
+                        <p style="color: var(--gray-dark); font-size: 0.875rem; margin-bottom: 0.5rem;">{{ article.description|truncatewords:15 }}</p>
+                        <div style="font-size: 0.75rem; color: var(--gray-dark);">{{ article.author_name }} • {{ article.published_at|date:"M d, Y" }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+// Configuration Management
+function saveConfiguration() {
+    const form = document.getElementById('configForm');
+    const formData = new FormData(form);
+    const saveBtn = document.getElementById('saveBtn');
+    
+    saveBtn.textContent = 'Saving...';
+    saveBtn.disabled = true;
+    
+    fetch('{% url "main:homepage_editor" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            saveBtn.textContent = 'Saved!';
+            saveBtn.style.backgroundColor = 'var(--success-green)';
+            setTimeout(() => {
+                saveBtn.textContent = 'Save Configuration';
+                saveBtn.style.backgroundColor = 'var(--primary-green)';
+                saveBtn.disabled = false;
+            }, 2000);
+        } else {
+            alert('Error saving configuration');
+            saveBtn.textContent = 'Save Configuration';
+            saveBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving configuration');
+        saveBtn.textContent = 'Save Configuration';
+        saveBtn.disabled = false;
+    });
+}
+
+// Featured Article Management
+function openFeaturedModal() {
+    document.getElementById('featuredModal').style.display = 'block';
+}
+
+function closeFeaturedModal() {
+    document.getElementById('featuredModal').style.display = 'none';
+}
+
+function selectFeaturedArticle(articleId, articleTitle) {
+    const formData = new FormData();
+    formData.append('action', 'set_featured_article');
+    formData.append('article_id', articleId);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    fetch('{% url "main:homepage_editor" %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Refresh to show new featured article
+        } else {
+            alert('Error setting featured article');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error setting featured article');
+    });
+    
+    closeFeaturedModal();
+}
+
+// Search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('articleSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const articles = document.querySelectorAll('.article-option');
+            
+            articles.forEach(article => {
+                const title = article.querySelector('h4').textContent.toLowerCase();
+                const description = article.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    article.style.display = 'block';
+                } else {
+                    article.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Add hover effects
+    const articleOptions = document.querySelectorAll('.article-option');
+    articleOptions.forEach(option => {
+        option.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = 'var(--gray-light)';
+        });
+        option.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = 'transparent';
+        });
+    });
+});
+
+// Auto-save on form changes
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('configForm');
+    const inputs = form.querySelectorAll('input, textarea, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Auto-save after a short delay
+            clearTimeout(window.autoSaveTimeout);
+            window.autoSaveTimeout = setTimeout(() => {
+                saveConfiguration();
+            }, 1000);
+        });
+    });
+});
+
+// Featured Content Editor Functions
+function openContentLibrary() {
+    document.getElementById('contentLibraryModal').style.display = 'block';
+}
+
+function closeContentLibrary() {
+    document.getElementById('contentLibraryModal').style.display = 'none';
+}
+
+function selectContent(contentId, contentTitle, contentType) {
+    // Update the hidden input and selected article info
+    document.getElementById('selectedArticleId').value = contentId;
+    
+    // Update the form fields with the selected content
+    fetch(`/api/get-content/${contentId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update form fields
+                document.querySelector('input[name="featured_title"]').value = data.content.title;
+                document.querySelector('textarea[name="featured_description"]').value = data.content.description;
+                
+                // Update content type display
+                document.querySelector('input[value*="No content selected"]').value = data.content.content_type;
+                
+                // Update selected article info
+                updateSelectedArticleInfo(data.content);
+                
+                closeContentLibrary();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching content:', error);
+            alert('Error loading content details');
+        });
+}
+
+function updateSelectedArticleInfo(content) {
+    const infoDiv = document.getElementById('selectedArticleInfo');
+    infoDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h4 style="margin: 0 0 0.25rem 0;">Selected: ${content.title}</h4>
+                <p style="margin: 0; color: var(--gray-dark); font-size: 0.875rem;">${content.content_type} • Published ${content.published_date}</p>
+            </div>
+            <a href="#" onclick="viewFullContent('${content.id}')" 
+               style="color: var(--primary-green); text-decoration: none; font-size: 0.875rem;">View Full Content →</a>
+        </div>
+    `;
+}
+
+function saveFeaturedContent() {
+    const form = document.getElementById('featuredContentForm');
+    const formData = new FormData(form);
+    
+    // Handle image upload if present
+    const imageUpload = document.getElementById('imageUpload');
+    if (imageUpload.files[0]) {
+        formData.append('featured_image', imageUpload.files[0]);
+    }
+    
+    fetch('{% url "main:homepage_editor" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            const saveBtn = document.querySelector('button[onclick="saveFeaturedContent()"]');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = 'Saved!';
+            saveBtn.style.backgroundColor = 'var(--status-active)';
+            
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.style.backgroundColor = 'var(--primary-green)';
+            }, 2000);
+            
+            // Optionally reload to show updated preview
+            // location.reload();
+        } else {
+            alert('Error saving featured content: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving featured content');
+    });
+}
+
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = `
+                <img src="${e.target.result}" alt="Preview" 
+                     style="max-width: 100%; height: 150px; object-fit: cover; border-radius: var(--border-radius-button);">
+            `;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function removeImage() {
+    // Clear the file input
+    document.getElementById('imageUpload').value = '';
+    
+    // Reset preview to placeholder
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = `
+        <div style="height: 150px; background-color: var(--gray-medium); border-radius: var(--border-radius-button); display: flex; align-items: center; justify-content: center; color: var(--gray-dark);">
+            No Image
+        </div>
+    `;
+    
+    // Add a flag to indicate image should be removed
+    const form = document.getElementById('featuredContentForm');
+    let removeInput = form.querySelector('input[name="remove_image"]');
+    if (!removeInput) {
+        removeInput = document.createElement('input');
+        removeInput.type = 'hidden';
+        removeInput.name = 'remove_image';
+        form.appendChild(removeInput);
+    }
+    removeInput.value = 'true';
+}
+
+function viewFullContent(contentId) {
+    // Open the full content in a new tab
+    window.open(`/content/${contentId}/`, '_blank');
+}
+
+// Content Library Search
+function filterContentLibrary() {
+    const searchTerm = document.getElementById('contentSearch').value.toLowerCase();
+    const contentItems = document.querySelectorAll('.content-library-item');
+    
+    contentItems.forEach(item => {
+        const title = item.querySelector('h4').textContent.toLowerCase();
+        const description = item.querySelector('p').textContent.toLowerCase();
+        const contentType = item.dataset.contentType.toLowerCase();
+        
+        if (title.includes(searchTerm) || description.includes(searchTerm) || contentType.includes(searchTerm)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function filterByContentType(type) {
+    const contentItems = document.querySelectorAll('.content-library-item');
+    
+    contentItems.forEach(item => {
+        if (type === 'all' || item.dataset.contentType === type) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+    
+    // Update filter button styles
+    document.querySelectorAll('.content-type-filter').forEach(btn => {
+        btn.style.backgroundColor = 'var(--white)';
+        btn.style.color = 'var(--gray-dark)';
+    });
+    
+    const activeBtn = document.querySelector(`[onclick="filterByContentType('${type}')"]`);
+    if (activeBtn) {
+        activeBtn.style.backgroundColor = 'var(--primary-green)';
+        activeBtn.style.color = 'var(--white)';
+    }
+}
+});
+</script>
+
+<!-- Content Library Modal -->
+<div id="contentLibraryModal" style="
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+">
+    <div style="
+        background-color: var(--white);
+        margin: 2% auto;
+        padding: 0;
+        border-radius: var(--border-radius-card);
+        width: 90%;
+        max-width: 1000px;
+        max-height: 90%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    ">
+        <!-- Modal Header -->
+        <div style="
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-medium);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        ">
+            <div>
+                <h2 style="margin: 0 0 0.5rem 0;">Browse Content Library</h2>
+                <p style="margin: 0; color: var(--gray-dark);">Select content to feature on the homepage</p>
+            </div>
+            <button onclick="closeContentLibrary()" style="
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: var(--gray-dark);
+                padding: 0.5rem;
+            ">×</button>
+        </div>
+        
+        <!-- Search and Filters -->
+        <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--gray-medium);">
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <input type="text" id="contentSearch" placeholder="Search content..." 
+                       onkeyup="filterContentLibrary()"
+                       style="flex: 1; padding: 0.75rem; border: 1px solid var(--gray-medium); border-radius: var(--border-radius-button);">
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="content-type-filter" onclick="filterByContentType('all')" style="
+                    background-color: var(--primary-green);
+                    color: var(--white);
+                    border: 1px solid var(--gray-medium);
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--border-radius-button);
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                ">All Content</button>
+                <button class="content-type-filter" onclick="filterByContentType('article')" style="
+                    background-color: var(--white);
+                    color: var(--gray-dark);
+                    border: 1px solid var(--gray-medium);
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--border-radius-button);
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                ">Articles</button>
+                <button class="content-type-filter" onclick="filterByContentType('interview')" style="
+                    background-color: var(--white);
+                    color: var(--gray-dark);
+                    border: 1px solid var(--gray-medium);
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--border-radius-button);
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                ">Interviews</button>
+                <button class="content-type-filter" onclick="filterByContentType('session')" style="
+                    background-color: var(--white);
+                    color: var(--gray-dark);
+                    border: 1px solid var(--gray-medium);
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--border-radius-button);
+                    font-size: 0.875rem;
+                    cursor: pointer;
+                ">Sessions</button>
+            </div>
+        </div>
+        
+        <!-- Content List -->
+        <div style="
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.5rem;
+            max-height: 400px;
+        ">
+            {% for article in all_articles %}
+            <div class="content-library-item" data-content-type="{{ article.content_type }}" style="
+                border: 1px solid var(--gray-medium);
+                border-radius: var(--border-radius-button);
+                padding: 1rem;
+                margin-bottom: 1rem;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+            " onclick="selectContent('{{ article.id }}', '{{ article.title|escapejs }}', '{{ article.content_type }}')">
+                <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <h4 style="margin: 0;">{{ article.title }}</h4>
+                            <span style="
+                                background-color: var(--primary-green);
+                                color: var(--white);
+                                padding: 0.25rem 0.5rem;
+                                border-radius: var(--border-radius-button);
+                                font-size: 0.75rem;
+                                text-transform: uppercase;
+                            ">{{ article.content_type }}</span>
+                        </div>
+                        <p style="margin: 0 0 0.5rem 0; color: var(--gray-dark); font-size: 0.875rem;">{{ article.description|truncatewords:20 }}</p>
+                        <div style="font-size: 0.75rem; color: var(--gray-dark);">
+                            By {{ article.author_name }} • Published {{ article.published_at|date:"M d, Y" }}
+                        </div>
+                    </div>
+                    <div style="
+                        width: 60px;
+                        height: 60px;
+                        background-color: var(--gray-light);
+                        border-radius: var(--border-radius-button);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: var(--gray-dark);
+                        font-size: 0.75rem;
+                    ">IMG</div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; padding: 2rem; color: var(--gray-dark);">
+                <p>No published content available. Create some content first!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

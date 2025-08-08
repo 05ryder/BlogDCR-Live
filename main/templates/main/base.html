@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BlogDCR - Dartmouth College Radio{% endblock %}</title>
+    
+    <!-- Google Fonts - CRITICAL: Exact match to design system -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Design System Variables */
+        :root {
+            --primary-green: #00693e;
+            --black: #000;
+            --white: #FFFFFF;
+            --gray-light: #F8F8F8;
+            --gray-medium: #E8E8E8;
+            --gray-dark: #666;
+            --gray-darker: #333;
+            --status-active: #2E7D32;
+            --status-archived: #F57C00;
+            --status-private: #C62828;
+            
+            /* Typography */
+            --font-header: 'Crimson Text', serif;
+            --font-logo: 'Inter', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            
+            /* Layout */
+            --max-width: 1200px;
+            --standard-padding: 2rem;
+            --nav-gap: 2.5rem;
+            --border-radius-button: 4px;
+            --border-radius-card: 8px;
+        }
+        
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            color: var(--black);
+            background-color: var(--white);
+            line-height: 1.6;
+        }
+        
+        /* Layout Container */
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 var(--standard-padding);
+        }
+        
+        /* Header Styles */
+        .site-header {
+            background-color: var(--black);
+            color: var(--white);
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .site-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .site-header a {
+            color: var(--white);
+            text-decoration: none;
+        }
+        
+        /* Navigation */
+        .main-nav {
+            background-color: var(--white);
+            border-bottom: 1px solid var(--gray-medium);
+            padding: 1rem 0;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: var(--font-logo);
+            font-weight: 900;
+            font-size: 2rem;
+            letter-spacing: -2.5px;
+            color: var(--black);
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: var(--nav-gap);
+            list-style: none;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--gray-dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-green);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-green);
+            color: #FFFFFF !important;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius-button);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #005a33;
+        }
+        
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-header);
+            font-weight: 400;
+            line-height: 1.2;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-size: 2.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        h3 {
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Cards */
+        .card {
+            background-color: var(--white);
+            border: 1px solid var(--gray-medium);
+            border-radius: var(--border-radius-card);
+            padding: var(--standard-padding);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Content Sections */
+        .content-section {
+            margin: 3rem 0;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            color: var(--black);
+        }
+        
+        .section-link {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* Grid Layouts */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        /* Status Indicators */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--border-radius-button);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-live {
+            background-color: var(--status-active);
+            color: var(--white);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.25rem;
+            }
+            
+            h2 {
+                font-size: 1.875rem;
+            }
+        }
+        
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-green { color: var(--primary-green); }
+        .text-gray { color: var(--gray-dark); }
+        .mb-1 { margin-bottom: 1rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        .mt-2 { margin-top: 2rem; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Site Header -->
+    <header class="site-header">
+        <div class="container">
+            <div>Dartmouth College Radio</div>
+            <div>
+                <a href="{% url 'main:editor_login' %}">webdcr</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-container">
+                <a href="{% url 'main:homepage' %}" class="logo">BlogDCR</a>
+                
+                <ul class="nav-links">
+                    <li><a href="{% url 'main:features' %}">Features</a></li>
+                    <li><a href="{% url 'main:sessions' %}">Sessions</a></li>
+                    <li><a href="{% url 'main:playlists' %}">Playlists</a></li>
+                    <li><a href="{% url 'main:media' %}">Media</a></li>
+                    <li><a href="{% url 'main:about' %}">About</a></li>
+                    <li><a href="{% url 'main:submit' %}" class="text-green">Submit</a></li>
+                    <li><a href="https://player.listenlive.co/75321" target="_blank" class="btn-primary">Listen Live</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

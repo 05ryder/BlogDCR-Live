@@ -1,0 +1,155 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Editor Access - BlogDCR{% endblock %}
+
+{% block content %}
+<div style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+">
+    <div style="
+        background-color: var(--white);
+        padding: 3rem;
+        border-radius: var(--border-radius-card);
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        position: relative;
+    ">
+        <!-- Close Button -->
+        <button onclick="goToHomepage()" style="
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-dark);
+            cursor: pointer;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        " onmouseover="this.style.backgroundColor='var(--gray-light)'" onmouseout="this.style.backgroundColor='transparent'">
+            ×
+        </button>
+        <div class="text-center mb-2">
+            <h2 style="margin-bottom: 0.5rem;">Editor Access</h2>
+            <p style="color: var(--gray-dark); font-size: 0.875rem;">BlogDCR Editorial Login</p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div style="
+                    background-color: #fee;
+                    color: #c62828;
+                    padding: 0.75rem;
+                    border-radius: var(--border-radius-button);
+                    margin-bottom: 1rem;
+                    font-size: 0.875rem;
+                ">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: var(--black);
+                ">Username</label>
+                <input 
+                    type="text" 
+                    name="username" 
+                    placeholder="Enter your username"
+                    required
+                    style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--gray-medium);
+                        border-radius: var(--border-radius-button);
+                        font-size: 1rem;
+                        background-color: var(--gray-light);
+                    "
+                >
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <label style="
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: var(--black);
+                ">Password</label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="Enter your password"
+                    required
+                    style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--gray-medium);
+                        border-radius: var(--border-radius-button);
+                        font-size: 1rem;
+                        background-color: var(--gray-light);
+                    "
+                >
+            </div>
+            
+            <button 
+                type="submit" 
+                class="btn-primary"
+                style="
+                    width: 100%;
+                    padding: 0.875rem;
+                    font-size: 1rem;
+                    margin-bottom: 1rem;
+                "
+            >
+                Sign In
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Function to navigate to homepage
+function goToHomepage() {
+    window.location.href = '{% url "main:homepage" %}';
+}
+
+// Allow closing modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        goToHomepage();
+    }
+});
+
+// Allow closing modal by clicking outside the modal content
+document.addEventListener('click', function(event) {
+    const modal = event.target.closest('[style*="position: fixed"]');
+    const modalContent = event.target.closest('[style*="background-color: var(--white)"]');
+    
+    if (modal && !modalContent) {
+        goToHomepage();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,337 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Media - BlogDCR{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            {% if user.is_superuser %}
+                <h1>Media Dashboard</h1>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{% url 'main:published' %}" class="btn-secondary">Manage Content</a>
+                    <a href="{% url 'main:submit' %}" class="btn-primary">Upload Media</a>
+                </div>
+            {% else %}
+                <div>
+                    <h1>Media</h1>
+                    <p style="text-align: center; color: var(--gray-dark); margin-bottom: 2rem; font-size: 1.1rem;">Photos, artwork, and videos from the Dartmouth community</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Stats Overview (Dashboard Only) -->
+        {% if user.is_superuser %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div class="card" style="text-align: center; padding: 1.5rem;">
+                <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">{{ stats.total }}</h3>
+                <p style="color: var(--gray-dark); margin: 0;">Total Media</p>
+            </div>
+            <div class="card" style="text-align: center; padding: 1.5rem;">
+                <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">{{ stats.photography }}</h3>
+                <p style="color: var(--gray-dark); margin: 0;">Photography</p>
+            </div>
+            <div class="card" style="text-align: center; padding: 1.5rem;">
+                <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">{{ stats.artwork }}</h3>
+                <p style="color: var(--gray-dark); margin: 0;">Artwork</p>
+            </div>
+            <div class="card" style="text-align: center; padding: 1.5rem;">
+                <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">{{ stats.posters }}</h3>
+                <p style="color: var(--gray-dark); margin: 0;">Posters</p>
+            </div>
+            <div class="card" style="text-align: center; padding: 1.5rem;">
+                <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">{{ stats.videos }}</h3>
+                <p style="color: var(--gray-dark); margin: 0;">Videos</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Filter Tabs -->
+        <div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+            <div style="display: flex; gap: 0.5rem; background-color: var(--gray-light); padding: 0.25rem; border-radius: var(--border-radius-card);">
+                <a href="?type=all" style="
+                    padding: 0.75rem 1.5rem;
+                    border-radius: var(--border-radius-button);
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    {% if current_filter == 'all' %}background-color: var(--primary-green); color: var(--white);{% else %}color: var(--gray-dark);{% endif %}
+                ">All ({{ stats.total }})</a>
+                <a href="?type=photography" style="
+                    padding: 0.75rem 1.5rem;
+                    border-radius: var(--border-radius-button);
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    {% if current_filter == 'photography' %}background-color: var(--primary-green); color: var(--white);{% else %}color: var(--gray-dark);{% endif %}
+                ">Photography ({{ stats.photography }})</a>
+                <a href="?type=artwork" style="
+                    padding: 0.75rem 1.5rem;
+                    border-radius: var(--border-radius-button);
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    {% if current_filter == 'artwork' %}background-color: var(--primary-green); color: var(--white);{% else %}color: var(--gray-dark);{% endif %}
+                ">Artwork ({{ stats.artwork }})</a>
+                <a href="?type=poster" style="
+                    padding: 0.75rem 1.5rem;
+                    border-radius: var(--border-radius-button);
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    {% if current_filter == 'poster' %}background-color: var(--primary-green); color: var(--white);{% else %}color: var(--gray-dark);{% endif %}
+                ">Posters ({{ stats.posters }})</a>
+                <a href="?type=video" style="
+                    padding: 0.75rem 1.5rem;
+                    border-radius: var(--border-radius-button);
+                    text-decoration: none;
+                    font-weight: 600;
+                    transition: all 0.2s ease;
+                    {% if current_filter == 'video' %}background-color: var(--primary-green); color: var(--white);{% else %}color: var(--gray-dark);{% endif %}
+                ">Videos ({{ stats.videos }})</a>
+            </div>
+        </div>
+        
+        <!-- Media Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+            {% for media_item in media_items %}
+            <div class="card" style="overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease;" 
+                 onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)'" 
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.1)'">
+                
+                <!-- Media Preview -->
+                <div style="position: relative; height: 250px; background: linear-gradient(135deg, var(--gray-light) 0%, #f0f0f0 100%); display: flex; align-items: center; justify-content: center;">
+                    {% if media_item.file %}
+                        {% if media_item.media_type == 'photography' or media_item.media_type == 'artwork' or media_item.media_type == 'poster' %}
+                            <img src="{{ media_item.file.url }}" alt="{{ media_item.title }}" 
+                                 style="width: 100%; height: 100%; object-fit: cover;" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                            <div style="display: none; flex-direction: column; align-items: center; color: var(--gray-dark);">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🖼️</div>
+                                <span>{{ media_item.media_type|title }}</span>
+                            </div>
+                        {% elif media_item.media_type == 'video' %}
+                            <div style="display: flex; flex-direction: column; align-items: center; color: var(--gray-dark);">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎥</div>
+                                <span>Video</span>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div style="display: flex; flex-direction: column; align-items: center; color: var(--gray-dark);">
+                            {% if media_item.media_type == 'photography' %}
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">📸</div>
+                            {% elif media_item.media_type == 'artwork' %}
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎨</div>
+                            {% elif media_item.media_type == 'poster' %}
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">📄</div>
+                            {% elif media_item.media_type == 'video' %}
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎥</div>
+                            {% endif %}
+                            <span>{{ media_item.media_type|title }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Status Badge -->
+                    <div class="status-badge" style="
+                        position: absolute;
+                        top: 1rem;
+                        right: 1rem;
+                        background-color: var(--primary-green);
+                        color: var(--white);
+                        padding: 0.25rem 0.75rem;
+                        border-radius: var(--border-radius-button);
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                        text-transform: uppercase;
+                    ">
+                        {{ media_item.media_type }}
+                    </div>
+                    
+                    {% if user.is_superuser %}
+                    <!-- Editor Controls -->
+                    <div style="
+                        position: absolute;
+                        top: 1rem;
+                        left: 1rem;
+                        display: flex;
+                        gap: 0.5rem;
+                        opacity: 0;
+                        transition: opacity 0.2s ease;
+                    " class="editor-controls">
+                        <a href="/edit/media/{{ media_item.id }}/" 
+                           style="background: #00693e; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; text-decoration: none; font-size: 0.75rem; font-weight: 500; border: none; cursor: pointer;"
+                           title="Edit Media">Edit</a>
+                        <button onclick="toggleMediaStatus({{ media_item.id }})" 
+                                style="background: #666; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; border: none; cursor: pointer; margin-left: 0.5rem;"
+                                title="{% if media_item.status == 'published' %}Hide{% else %}Show{% endif %} Media">{% if media_item.status == 'published' %}Hide{% else %}Show{% endif %}</button>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Media Info -->
+                <div style="padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.75rem; font-family: 'Crimson Text', serif; font-size: 1.25rem;">{{ media_item.title }}</h3>
+                    
+                    <p style="color: var(--gray-dark); font-size: 0.875rem; margin-bottom: 1rem;">
+                        by {{ media_item.author_name }}
+                    </p>
+                    
+                    {% if media_item.description %}
+                    <p style="color: var(--gray-dark); font-size: 0.875rem; margin-bottom: 1rem; line-height: 1.4;">
+                        {{ media_item.description|truncatewords:15 }}
+                    </p>
+                    {% endif %}
+                    
+                    <!-- Metadata -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--gray-dark);">
+                        <div>
+                            {% if media_item.file_size %}
+                                <span>{{ media_item.file_size }}</span>
+                            {% endif %}
+                            {% if media_item.dimensions and media_item.file_size %}
+                                <span> • </span>
+                            {% endif %}
+                            {% if media_item.dimensions %}
+                                <span>{{ media_item.dimensions }}</span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ media_item.get_display_date|date:"M j, Y" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center" style="grid-column: 1 / -1; padding: 4rem 2rem;">
+                <div style="color: var(--gray-dark);">
+                    {% if current_filter == 'all' %}
+                        <h3 style="margin-bottom: 1rem;">No media uploaded yet</h3>
+                        <p style="margin-bottom: 2rem;">Start building your media gallery by uploading photos, artwork, posters, and videos.</p>
+                        {% if user.is_superuser %}
+                            <a href="{% url 'main:submit' %}" class="btn-primary">Upload First Media</a>
+                        {% endif %}
+                    {% else %}
+                        <h3 style="margin-bottom: 1rem;">No {{ current_filter }} found</h3>
+                        <p style="margin-bottom: 2rem;">Try selecting a different category or upload new {{ current_filter }} content.</p>
+                        <a href="?type=all" class="btn-secondary">View All Media</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<style>
+/* Media Dashboard Styles */
+.card:hover .editor-controls {
+    opacity: 1 !important;
+}
+
+.media-card {
+    transition: all 0.3s ease;
+}
+
+.filter-tab {
+    transition: all 0.2s ease;
+}
+
+.filter-tab:hover {
+    background-color: rgba(0, 105, 62, 0.1) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .filter-tabs {
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+    }
+    
+    .filter-tab {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.875rem !important;
+    }
+    
+    .media-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+    }
+    
+    .dashboard-controls {
+        width: 100% !important;
+        justify-content: flex-start !important;
+    }
+}
+</style>
+
+<script>
+// Media Dashboard JavaScript
+function toggleMediaStatus(mediaId) {
+    if (!confirm('Are you sure you want to change the status of this media item?')) {
+        return;
+    }
+    
+    fetch(`/api/media/${mediaId}/toggle-status/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to reflect changes
+            window.location.reload();
+        } else {
+            alert('Error updating media status: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating media status. Please try again.');
+    });
+}
+
+// Add smooth scrolling to filter tabs
+document.addEventListener('DOMContentLoaded', function() {
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            // Add loading state
+            tab.style.opacity = '0.7';
+            setTimeout(() => {
+                tab.style.opacity = '1';
+            }, 200);
+        });
+    });
+    
+    // Add hover effects to media cards
+    const mediaCards = document.querySelectorAll('.card');
+    mediaCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        });
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,466 @@
+{% extends 'main/base.html' %}
+
+{% block title %}About BlogDCR{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section text-center">
+        <h1 style="font-size: 3.5rem; margin-bottom: 2rem;">About BlogDCR</h1>
+        
+        <p style="
+            font-size: 1.25rem; 
+            color: var(--gray-dark); 
+            max-width: 800px; 
+            margin: 0 auto 3rem auto;
+            line-height: 1.6;
+        ">
+            Broadcasting from Robinson Hall since 1958, WEBDCR has been the voice of Dartmouth 
+            College and the Upper Valley. We're student-run, independent, and dedicated to 
+            showcasing the best in music, culture, and community.
+        </p>
+    </section>
+    
+    <section class="content-section">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
+            <div>
+                <h2 style="margin-bottom: 1.5rem;">Our Mission</h2>
+                <p style="color: var(--gray-dark); line-height: 1.6; margin-bottom: 1.5rem;">
+                    BlogDCR serves as both the digital home of WEBDCR and a platform for student voices. 
+                    We believe in the power of college radio to discover new music, foster community, 
+                    and provide a space for creative expression.
+                </p>
+                <p style="color: var(--gray-dark); line-height: 1.6;">
+                    From intimate live sessions in our Robinson Hall studio to in-depth interviews 
+                    with touring artists, we're committed to bringing you authentic music journalism 
+                    and exclusive content.
+                </p>
+            </div>
+            
+            <div>
+                <h2 style="margin-bottom: 1.5rem;">Get Involved</h2>
+                <p style="color: var(--gray-dark); line-height: 1.6; margin-bottom: 1.5rem;">
+                    Whether you want to host a show, write about music, or help behind the scenes, 
+                    there's a place for you at WEBDCR.
+                </p>
+                <p style="color: var(--gray-dark); line-height: 1.6; margin-bottom: 2rem;">
+                    Join us for our weekly meetings, submit content through our platform, or simply 
+                    tune in and become part of the WEBDCR community.
+                </p>
+                <a href="{% url 'main:submit' %}" class="btn-primary">Submit Your Work</a>
+            </div>
+        </div>
+    </section>
+    
+    <section class="content-section">
+        <h2 class="text-center mb-2">Directorate</h2>
+        
+        <div style="
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 2rem; 
+            margin-bottom: 4rem;
+        ">
+            <!-- Co-General Manager -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Caroline Bailey '27</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Co-General Manager</p>
+            </div>
+            
+            <!-- Co-General Manager -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Joey Jerva '27</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Co-General Manager</p>
+            </div>
+            
+            <!-- Blog Editor-in-Chief -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Ryder Cuch '28</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Blog Editor-in-Chief</p>
+            </div>
+            
+            <!-- Operations Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Alexis Park '28</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Operations Director</p>
+            </div>
+            
+            <!-- Music Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Sarah Price '26</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Music Director</p>
+            </div>
+            
+            <!-- News Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Nate Wayne '28</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">News Director</p>
+            </div>
+            
+            <!-- Co-News Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Brendilou Armstrong '26</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Co-News Director</p>
+            </div>
+            
+            <!-- Sports Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Arielle Citran '28</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Sports Director</p>
+            </div>
+            
+            <!-- Production Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Ryan Stern '27</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Production Director</p>
+            </div>
+            
+            <!-- Treasurer -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Alex Duffield '27</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Treasurer</p>
+            </div>
+            
+            <!-- Tech Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Nico Bezzerides</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Tech Director</p>
+            </div>
+            
+            <!-- Alumni Relations -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Avery Stern '27</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Alumni Relations</p>
+            </div>
+            
+            <!-- Historian -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">James Underwood '28</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Historian</p>
+            </div>
+            
+            <!-- Co-Art Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Vic Cosmo '28</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Co-Art Director & Co-Social Chair</p>
+            </div>
+            
+            <!-- Co-Art Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Nerissa Chin '28</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Co-Art Director</p>
+            </div>
+            
+            <!-- Co-Marketing Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Claudia Shin '28</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Co-Marketing Director</p>
+            </div>
+            
+            <!-- Co-Marketing Director -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Mackenzie Morong '27</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Co-Marketing Director</p>
+            </div>
+            
+            <!-- Co-Social Chair -->
+            <div style="text-align: center;">
+                <div style="
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    background-color: var(--gray-light);
+                    margin: 0 auto 1rem auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3rem;
+                    color: var(--gray-medium);
+                ">
+                    👤
+                </div>
+                <h3 style="margin-bottom: 0.25rem; font-size: 1.25rem;">Gracie Bartos</h3>
+                <p style="color: var(--gray-dark); font-size: 0.875rem;">Co-Social Chair</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="content-section">
+        <h2 class="text-center mb-2">Contact Us</h2>
+        
+        <div style="
+            text-align: center;
+            background-color: var(--gray-light);
+            padding: 3rem;
+            border-radius: var(--border-radius-card);
+        ">
+            <div style="margin-bottom: 2rem;">
+                <p style="color: var(--gray-dark); font-size: 1.125rem; margin-bottom: 0.5rem;">Third Floor, Robinson Hall</p>
+                <p style="color: var(--gray-dark); font-size: 1.125rem; margin-bottom: 0.5rem;">Dartmouth College</p>
+                <p style="color: var(--gray-dark); font-size: 1.125rem;">Hanover, NH 03755</p>
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <p style="color: var(--gray-dark); font-size: 1.125rem; margin-bottom: 0.5rem;">Editor-in-Chief: ryder.j.cuch.28@dartmouth.edu</p>
+                <p style="color: var(--gray-dark); font-size: 1.125rem;">General Inquiries: webdcr@dartmouth.edu</p>
+            </div>
+            
+            <a href="https://groupme.com/join_group/96609477/Cz1nG8uo" target="_blank" class="btn-primary" style="
+                background-color: var(--primary-green);
+                color: white;
+                padding: 0.875rem 2rem;
+                border-radius: var(--border-radius-button);
+                text-decoration: none;
+                font-weight: 600;
+                display: inline-block;
+            ">Join WEBDCR</a>
+        </div>
+    </section>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .content-section > div {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+}
+</style>
+{% endblock %}

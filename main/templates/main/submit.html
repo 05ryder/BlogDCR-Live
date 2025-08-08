@@ -1,0 +1,346 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Submit to BlogDCR{% endblock %}
+
+{% block content %}
+<div style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 2rem 0;
+">
+    <div style="
+        background-color: var(--white);
+        padding: 3rem;
+        border-radius: var(--border-radius-card);
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        margin: auto;
+    ">
+        <div class="text-center mb-2">
+            <h2 style="margin-bottom: 0.5rem;">Submit to BlogDCR</h2>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div style="
+                    background-color: #e8f5e8;
+                    color: #2e7d32;
+                    padding: 0.75rem;
+                    border-radius: var(--border-radius-button);
+                    margin-bottom: 1rem;
+                    font-size: 0.875rem;
+                ">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" id="submitForm">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: var(--black);
+                ">Submission Type</label>
+                <select 
+                    name="content_type" 
+                    id="contentType"
+                    required
+                    style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--gray-medium);
+                        border-radius: var(--border-radius-button);
+                        font-size: 1rem;
+                        background-color: var(--white);
+                    "
+                    onchange="toggleFields()"
+                >
+                    <option value="">Select type...</option>
+                    <option value="playlist">Playlist</option>
+                    <option value="article">Article/Interview</option>
+                    <option value="photography">Photography</option>
+                    <option value="artwork">Artwork/Media</option>
+                    <option value="event">Event Coverage</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: var(--black);
+                ">Your Name</label>
+                <input 
+                    type="text" 
+                    name="author_name" 
+                    placeholder="First Last"
+                    required
+                    style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--gray-medium);
+                        border-radius: var(--border-radius-button);
+                        font-size: 1rem;
+                    "
+                >
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: var(--black);
+                ">Class Year</label>
+                <input 
+                    type="text" 
+                    name="author_class_year" 
+                    placeholder="'25"
+                    style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--gray-medium);
+                        border-radius: var(--border-radius-button);
+                        font-size: 1rem;
+                    "
+                >
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: var(--black);
+                ">Email</label>
+                <input 
+                    type="email" 
+                    name="author_email" 
+                    placeholder="name@dartmouth.edu"
+                    required
+                    style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--gray-medium);
+                        border-radius: var(--border-radius-button);
+                        font-size: 1rem;
+                    "
+                >
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: var(--black);
+                ">Title</label>
+                <input 
+                    type="text" 
+                    name="title" 
+                    placeholder="Title of your submission"
+                    required
+                    style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--gray-medium);
+                        border-radius: var(--border-radius-button);
+                        font-size: 1rem;
+                    "
+                >
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-weight: 600;
+                    color: var(--black);
+                ">Description</label>
+                <textarea 
+                    name="description" 
+                    placeholder="Tell us about your submission..."
+                    required
+                    rows="4"
+                    style="
+                        width: 100%;
+                        padding: 0.75rem;
+                        border: 1px solid var(--gray-medium);
+                        border-radius: var(--border-radius-button);
+                        font-size: 1rem;
+                        resize: vertical;
+                    "
+                ></textarea>
+            </div>
+            
+            <!-- Playlist specific fields -->
+            <div id="playlistFields" style="display: none;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="
+                        display: block;
+                        margin-bottom: 0.5rem;
+                        font-weight: 600;
+                        color: var(--black);
+                    ">Platform</label>
+                    <select 
+                        name="platform"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                            background-color: var(--white);
+                        "
+                    >
+                        <option value="">Select platform...</option>
+                        <option value="spotify">Spotify</option>
+                        <option value="apple">Apple Music</option>
+                        <option value="soundcloud">SoundCloud</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="
+                        display: block;
+                        margin-bottom: 0.5rem;
+                        font-weight: 600;
+                        color: var(--black);
+                    ">Playlist Link</label>
+                    <input 
+                        type="url" 
+                        name="playlist_url" 
+                        placeholder="https://open.spotify.com/playlist/..."
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                    >
+                </div>
+            </div>
+            
+            <!-- Article specific fields -->
+            <div id="articleFields" style="display: none;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="
+                        display: block;
+                        margin-bottom: 0.5rem;
+                        font-weight: 600;
+                        color: var(--black);
+                    ">Article Content</label>
+                    <textarea 
+                        name="content_text" 
+                        placeholder="Write your article content here..."
+                        rows="8"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                            resize: vertical;
+                        "
+                    ></textarea>
+                </div>
+            </div>
+            
+            <!-- Media upload fields -->
+            <div id="mediaFields" style="display: none;">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="
+                        display: block;
+                        margin-bottom: 0.5rem;
+                        font-weight: 600;
+                        color: var(--black);
+                    ">Upload Files</label>
+                    <input 
+                        type="file" 
+                        name="files" 
+                        multiple
+                        accept="image/*,video/*"
+                        style="
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--gray-medium);
+                            border-radius: var(--border-radius-button);
+                            font-size: 1rem;
+                        "
+                    >
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button 
+                    type="submit" 
+                    class="btn-primary"
+                    style="
+                        flex: 1;
+                        padding: 0.875rem;
+                        font-size: 1rem;
+                    "
+                >
+                    Submit
+                </button>
+                
+                <button 
+                    type="button" 
+                    onclick="window.history.back()"
+                    style="
+                        flex: 1;
+                        padding: 0.875rem;
+                        font-size: 1rem;
+                        background-color: var(--gray-dark);
+                        color: var(--white);
+                        border: none;
+                        border-radius: var(--border-radius-button);
+                        cursor: pointer;
+                    "
+                >
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleFields() {
+    const contentType = document.getElementById('contentType').value;
+    const playlistFields = document.getElementById('playlistFields');
+    const articleFields = document.getElementById('articleFields');
+    const mediaFields = document.getElementById('mediaFields');
+    
+    // Hide all fields first
+    playlistFields.style.display = 'none';
+    articleFields.style.display = 'none';
+    mediaFields.style.display = 'none';
+    
+    // Show relevant fields
+    if (contentType === 'playlist') {
+        playlistFields.style.display = 'block';
+    } else if (contentType === 'article') {
+        articleFields.style.display = 'block';
+    } else if (contentType === 'photography' || contentType === 'artwork') {
+        mediaFields.style.display = 'block';
+    }
+}
+</script>
+{% endblock %}

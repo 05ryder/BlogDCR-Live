@@ -1,0 +1,53 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Playlists - BlogDCR{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section">
+        <h1 class="text-center mb-1">Playlists</h1>
+        <p class="text-center text-gray mb-2">Student-curated playlists from the Dartmouth community</p>
+        
+        <!-- Rich Playlist Embeds -->
+        <div style="display: flex; flex-direction: column; gap: 2rem; max-width: 800px; margin: 0 auto;">
+            {% for playlist in playlists %}
+                {% include 'main/playlist_embed.html' with playlist=playlist %}
+            {% empty %}
+            <div class="text-center">
+                <p class="text-gray">No playlists available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- JavaScript for playlist management (if user is editor) -->
+        {% if user.is_superuser %}
+        <script>
+        function toggleContentVisibility(contentType, contentId) {
+            if (confirm('Toggle visibility for this content?')) {
+                fetch(`/api/toggle/${contentType}/${contentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating content visibility');
+                    }
+                });
+            }
+        }
+        
+        function editContent(contentType, contentId) {
+            window.open(`/edit/${contentType}/${contentId}/`, '_blank');
+        }
+        </script>
+        {% csrf_token %}
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

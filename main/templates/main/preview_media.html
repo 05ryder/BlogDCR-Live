@@ -1,0 +1,196 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Preview: {{ submission.title }} - BlogDCR{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section">
+        <!-- Preview Header -->
+        <div style="
+            background-color: var(--status-archived);
+            color: var(--white);
+            padding: 1rem 2rem;
+            margin: -2rem -2rem 2rem -2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        ">
+            <div>
+                <h2 style="margin: 0; color: var(--white);">PREVIEW MODE</h2>
+                <p style="margin: 0; opacity: 0.9;">This is how the {{ submission.content_type }} will appear when published</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="window.close()" style="
+                    background-color: var(--white);
+                    color: var(--status-archived);
+                    border: none;
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--border-radius-button);
+                    font-weight: 600;
+                    cursor: pointer;
+                ">Close Preview</button>
+            </div>
+        </div>
+
+        <!-- Media Preview -->
+        <div class="card">
+            <div style="margin-bottom: 1.5rem;">
+                <span class="status-badge" style="
+                    background-color: var(--primary-green);
+                    color: var(--white);
+                ">{{ submission.content_type|upper }}</span>
+            </div>
+            
+            <h1 style="margin-bottom: 1rem;">{{ submission.title }}</h1>
+            
+            <div style="
+                color: var(--gray-dark);
+                font-size: 0.875rem;
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid var(--gray-medium);
+            ">
+                <strong>By:</strong> {{ submission.author_name }}
+                {% if submission.author_class_year %} '{{ submission.author_class_year }}{% endif %}
+                • <strong>Email:</strong> {{ submission.author_email }}
+                <br>
+                <strong>Submitted:</strong> {{ submission.created_at|date:"F d, Y \a\t g:i A" }}
+            </div>
+            
+            <!-- Media Display Area -->
+            <div style="
+                background-color: var(--gray-light);
+                border: 2px dashed var(--gray-medium);
+                border-radius: var(--border-radius-card);
+                padding: 3rem;
+                text-align: center;
+                margin-bottom: 2rem;
+                min-height: 400px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            ">
+                {% if submission.media_file %}
+                    <div style="
+                        background-color: var(--white);
+                        padding: 2rem;
+                        border-radius: var(--border-radius-card);
+                        border: 1px solid var(--gray-medium);
+                        max-width: 500px;
+                    ">
+                        <div style="
+                            font-size: 3rem;
+                            color: var(--primary-green);
+                            margin-bottom: 1rem;
+                        ">🎨</div>
+                        <h3 style="margin-bottom: 0.5rem;">{{ submission.content_type|title }} File</h3>
+                        <p style="color: var(--gray-dark); font-size: 0.875rem; margin-bottom: 1rem;">
+                            {{ submission.media_file.name }}
+                        </p>
+                        <p style="color: var(--gray-dark); font-size: 0.75rem;">
+                            File would be displayed here when published
+                        </p>
+                    </div>
+                {% else %}
+                    <div style="color: var(--gray-dark);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                        <h3>No Media File Attached</h3>
+                        <p>This submission doesn't include a media file.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if submission.description %}
+            <div style="margin-bottom: 2rem;">
+                <h3>Description</h3>
+                <p style="white-space: pre-wrap; line-height: 1.6;">{{ submission.description }}</p>
+            </div>
+            {% endif %}
+            
+            {% if submission.content_text %}
+            <div style="margin-bottom: 2rem;">
+                <h3>Additional Details</h3>
+                <div style="white-space: pre-wrap; line-height: 1.6;">{{ submission.content_text }}</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        ">
+            <button onclick="approveFromPreview()" style="
+                background-color: var(--status-active);
+                color: var(--white);
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: var(--border-radius-button);
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            ">Approve & Publish</button>
+            
+            <button onclick="rejectFromPreview()" style="
+                background-color: var(--status-private);
+                color: var(--white);
+                border: none;
+                padding: 0.75rem 1.5rem;
+                border-radius: var(--border-radius-button);
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            ">Reject</button>
+        </div>
+    </section>
+</div>
+
+<script>
+function approveFromPreview() {
+    if (confirm('Approve this submission and publish it to the site?')) {
+        fetch(`/api/approve/{{ submission.id }}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Submission approved and published!');
+                window.close();
+            } else {
+                alert('Error approving submission');
+            }
+        });
+    }
+}
+
+function rejectFromPreview() {
+    if (confirm('Reject this submission? This action cannot be undone.')) {
+        fetch(`/api/reject/{{ submission.id }}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Submission rejected.');
+                window.close();
+            } else {
+                alert('Error rejecting submission');
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

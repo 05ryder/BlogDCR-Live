@@ -1,0 +1,253 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Published Content - BlogDCR{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="content-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Published Content</h1>
+            <a href="{% url 'main:dashboard' %}" style="color: var(--gray-dark); text-decoration: none;">← Back to Dashboard</a>
+        </div>
+        
+        <!-- Content Sections -->
+        <div style="display: flex; flex-direction: column; gap: 3rem;">
+            
+            <!-- Articles -->
+            <div>
+                <h2 style="margin-bottom: 1.5rem;">Articles & Interviews</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for article in articles %}
+                    <div class="card" style="border-left: 4px solid {% if article.status == 'published' %}var(--status-active){% elif article.status == 'private' %}var(--status-private){% else %}var(--status-archived){% endif %};">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="margin-bottom: 0.5rem;">{{ article.title }}</h3>
+                                <p style="color: var(--gray-dark); font-size: 0.875rem;">
+                                    by {{ article.author_name }} • {{ article.views|default:0 }} views • {{ article.created_at|date:"M d, Y" }}
+                                    <span style="margin-left: 1rem; padding: 0.25rem 0.5rem; background-color: {% if article.status == 'published' %}var(--status-active){% elif article.status == 'private' %}var(--status-private){% else %}var(--status-archived){% endif %}; color: white; border-radius: 3px; font-size: 0.75rem;">
+                                        {{ article.status|upper }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 0.75rem;">
+                                <button 
+                                    onclick="toggleContentVisibility('article', {{ article.id }})"
+                                    style="
+                                        background-color: var(--white);
+                                        color: var(--gray-dark);
+                                        border: 1px solid var(--gray-medium);
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >{% if article.status == 'published' %}Hide{% else %}Show{% endif %}</button>
+                                <button 
+                                    onclick="editContent('article', {{ article.id }})"
+                                    style="
+                                        background-color: var(--primary-green);
+                                        color: var(--white);
+                                        border: none;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >Edit</button>
+                                <button 
+                                    onclick="deleteContent('article', {{ article.id }})"
+                                    style="
+                                        background-color: var(--status-private);
+                                        color: var(--white);
+                                        border: none;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray">No published articles yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Sessions -->
+            <div>
+                <h2 style="margin-bottom: 1.5rem;">Sessions</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for session in sessions %}
+                    <div class="card" style="border-left: 4px solid {% if session.status == 'published' %}var(--status-active){% elif session.status == 'private' %}var(--status-private){% else %}var(--status-archived){% endif %};">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="margin-bottom: 0.5rem;">{{ session.title }}</h3>
+                                <p style="color: var(--gray-dark); font-size: 0.875rem;">
+                                    {{ session.session_type|title }} • {{ session.views|default:0 }} views • {{ session.created_at|date:"M d, Y" }}
+                                    <span style="margin-left: 1rem; padding: 0.25rem 0.5rem; background-color: {% if session.status == 'published' %}var(--status-active){% elif session.status == 'private' %}var(--status-private){% else %}var(--status-archived){% endif %}; color: white; border-radius: 3px; font-size: 0.75rem;">
+                                        {{ session.status|upper }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 0.75rem;">
+                                <button 
+                                    onclick="toggleContentVisibility('session', {{ session.id }})"
+                                    style="
+                                        background-color: var(--white);
+                                        color: var(--gray-dark);
+                                        border: 1px solid var(--gray-medium);
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >{% if session.status == 'published' %}Hide{% else %}Show{% endif %}</button>
+                                <button 
+                                    onclick="editContent('session', {{ session.id }})"
+                                    style="
+                                        background-color: var(--primary-green);
+                                        color: var(--white);
+                                        border: none;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >Edit</button>
+                                <button 
+                                    onclick="deleteContent('session', {{ session.id }})"
+                                    style="
+                                        background-color: var(--status-private);
+                                        color: var(--white);
+                                        border: none;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray">No published sessions yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Playlists -->
+            <div>
+                <h2 style="margin-bottom: 1.5rem;">Playlists</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for playlist in playlists %}
+                    <div class="card" style="border-left: 4px solid {% if playlist.status == 'published' %}var(--status-active){% elif playlist.status == 'private' %}var(--status-private){% else %}var(--status-archived){% endif %};">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="margin-bottom: 0.5rem;">{{ playlist.title }}</h3>
+                                <p style="color: var(--gray-dark); font-size: 0.875rem;">
+                                    by {{ playlist.author_name }} • {{ playlist.platform|title }}
+                                    <span style="margin-left: 1rem; padding: 0.25rem 0.5rem; background-color: {% if playlist.status == 'published' %}var(--status-active){% elif playlist.status == 'private' %}var(--status-private){% else %}var(--status-archived){% endif %}; color: white; border-radius: 3px; font-size: 0.75rem;">
+                                        {{ playlist.status|upper }}
+                                    </span>
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 0.75rem;">
+                                <button 
+                                    onclick="toggleContentVisibility('playlist', {{ playlist.id }})"
+                                    style="
+                                        background-color: var(--white);
+                                        color: var(--gray-dark);
+                                        border: 1px solid var(--gray-medium);
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >{% if playlist.status == 'published' %}Hide{% else %}Show{% endif %}</button>
+                                <button 
+                                    onclick="editContent('playlist', {{ playlist.id }})"
+                                    style="
+                                        background-color: var(--primary-green);
+                                        color: var(--white);
+                                        border: none;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >Edit</button>
+                                <button 
+                                    onclick="deleteContent('playlist', {{ playlist.id }})"
+                                    style="
+                                        background-color: var(--status-private);
+                                        color: var(--white);
+                                        border: none;
+                                        padding: 0.5rem 1rem;
+                                        border-radius: var(--border-radius-button);
+                                        font-size: 0.875rem;
+                                        cursor: pointer;
+                                    "
+                                >Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray">No published playlists yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+        </div>
+    </section>
+</div>
+
+<script>
+function toggleContentVisibility(contentType, contentId) {
+    if (confirm('Toggle visibility for this content?')) {
+        fetch(`/api/toggle/${contentType}/${contentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error updating content visibility');
+            }
+        });
+    }
+}
+
+function editContent(contentType, contentId) {
+    window.open(`/edit/${contentType}/${contentId}/`, '_blank');
+}
+
+function deleteContent(contentType, contentId) {
+    if (confirm('Are you sure you want to delete this content? This action cannot be undone.')) {
+        fetch(`/api/delete/${contentType}/${contentId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting content');
+            }
+        });
+    }
+}
+</script>
+
+{% csrf_token %}
+{% endblock %}
