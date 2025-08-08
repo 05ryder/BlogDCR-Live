@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 'tinymce',  # Temporarily disabled
-    'main',
+    'main.apps.MainConfig',
 ]
 
 MIDDLEWARE = [
