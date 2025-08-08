@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from tinymce.models import HTMLField
+# from tinymce.models import HTMLField  # Temporarily disabled
 
 
 class ContentStatus(models.TextChoices):
@@ -65,7 +65,7 @@ class BaseContent(models.Model):
 
 class Article(BaseContent):
     """Articles and Interviews"""
-    content = HTMLField()
+    content = models.TextField()  # Temporarily using TextField instead of HTMLField
     excerpt = models.CharField(max_length=300, blank=True)
     cover_image = models.ImageField(upload_to='articles/', blank=True)
     article_type = models.CharField(
@@ -97,7 +97,7 @@ class Session(BaseContent):
     video_url = models.URLField(blank=True)
     audio_url = models.URLField(blank=True)
     cover_image = models.ImageField(upload_to='sessions/', blank=True)
-    content = HTMLField(blank=True)  # Rich text content for session details
+    content = models.TextField(blank=True)  # Temporarily using TextField instead of HTMLField
     
     def __str__(self):
         return self.title
