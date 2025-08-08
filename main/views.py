@@ -11,47 +11,19 @@ from .models import Article, Session, Playlist, Media, Submission, ContentStatus
 
 # Public Views
 def homepage(request):
-    """Homepage with dynamic content based on configuration"""
-    from main.models import HomepageConfig
-    
-    # Try to get homepage configuration, create default if none exists
-    try:
-        config = HomepageConfig.get_current()
-    except (HomepageConfig.DoesNotExist, AttributeError):
-        # Create a default config if none exists
-        config = HomepageConfig.objects.create(
-            show_featured_section=True,
-            show_sessions_section=True,
-            show_playlists_section=True,
-            sessions_count=3,
-            playlists_count=3
-        )
-    
-    # Get featured article from config or fallback to featured flag
-    featured_article = config.featured_article if config else None
-    if not featured_article:
-        featured_article = Article.objects.filter(
-            status=ContentStatus.PUBLISHED, featured=True
-        ).first()
-    
-    # Get content based on configuration
-    latest_sessions = Session.objects.filter(
-        status=ContentStatus.PUBLISHED
-    )[:getattr(config, 'sessions_count', 3)] if config and config.show_sessions_section else []
-    
-    fresh_playlists = Playlist.objects.filter(
-        status=ContentStatus.PUBLISHED
-    )[:config.playlists_count] if config.show_playlists_section else []
-    
-    context = {
-        'config': config,
-        'featured_article': featured_article if config.show_featured_section else None,
-        'latest_sessions': latest_sessions,
-        'fresh_playlists': fresh_playlists,
-        'sections_order': config.sections_order,
-        'is_homepage': True,
-    }
-    return render(request, 'main/homepage.html', context)
+    """Simple test homepage to verify Django routing"""
+    from django.http import HttpResponse
+    return HttpResponse("""
+    <html>
+    <head><title>BlogDCR - Test</title></head>
+    <body style="font-family: Arial; text-align: center; padding: 50px;">
+        <h1 style="color: #00693E;">🎉 BlogDCR is LIVE! 🎉</h1>
+        <p>Django routing is working!</p>
+        <p>Railway deployment successful!</p>
+        <p><a href="/admin/">Admin Panel</a> | <a href="/about/">About</a></p>
+    </body>
+    </html>
+    """)
 
 
 def features(request):
