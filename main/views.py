@@ -14,11 +14,21 @@ def homepage(request):
     """Homepage with dynamic content based on configuration"""
     from main.models import HomepageConfig
     
-    # Get homepage configuration
-    config = HomepageConfig.get_current()
+    # Try to get homepage configuration, create default if none exists
+    try:
+        config = HomepageConfig.get_current()
+    except (HomepageConfig.DoesNotExist, AttributeError):
+        # Create a default config if none exists
+        config = HomepageConfig.objects.create(
+            show_featured_section=True,
+            show_sessions_section=True,
+            show_playlists_section=True,
+            sessions_count=3,
+            playlists_count=3
+        )
     
     # Get featured article from config or fallback to featured flag
-    featured_article = config.featured_article
+    featured_article = config.featured_article if config else None
     if not featured_article:
         featured_article = Article.objects.filter(
             status=ContentStatus.PUBLISHED, featured=True
@@ -27,7 +37,7 @@ def homepage(request):
     # Get content based on configuration
     latest_sessions = Session.objects.filter(
         status=ContentStatus.PUBLISHED
-    )[:config.sessions_count] if config.show_sessions_section else []
+    )[:getattr(config, 'sessions_count', 3)] if config and config.show_sessions_section else []
     
     fresh_playlists = Playlist.objects.filter(
         status=ContentStatus.PUBLISHED
